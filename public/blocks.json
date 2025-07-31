@@ -1524,12 +1524,6 @@
     "url": "blocks/missing_texture.png"
   },
   {
-    "id": 8008,
-    "name": "unpowered_repeater",
-    "displayName": "Redstone Repeater",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 285,
     "name": "white_stained_glass",
     "displayName": "White Stained Glass",
@@ -2229,7 +2223,7 @@
     "id": 441,
     "name": "powered_comparator",
     "displayName": "Redstone Comparator",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/repeater_on.png"
   },
   {
     "id": 8011,
