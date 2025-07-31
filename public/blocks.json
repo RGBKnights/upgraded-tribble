@@ -834,12 +834,6 @@
     "url": "blocks/wool_colored_black.png"
   },
   {
-    "id": 156,
-    "name": "moving_block",
-    "displayName": "Moving Piston",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 157,
     "name": "dandelion",
     "displayName": "Dandelion",
