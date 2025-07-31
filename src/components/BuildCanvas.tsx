@@ -275,20 +275,20 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         
         {/* Render all blocks in 3D space */}
         {allBlocks.map(blockData => renderBlock(blockData))}
-        
-        {/* Layer indicator */}
-        <div className="absolute top-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-sm z-30">
-          Layer {currentLayerIndex + 1} of {layers.length}
-          <div className="text-xs text-gray-300 mt-1">
-            {Object.keys(layers[currentLayerIndex]?.blocks || {}).length} blocks
-          </div>
+      </div>
+      
+      {/* Layer indicator - positioned outside 3D transform */}
+      <div className="absolute top-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-sm z-30">
+        Layer {currentLayerIndex + 1} of {layers.length}
+        <div className="text-xs text-gray-300 mt-1">
+          {Object.keys(layers[currentLayerIndex]?.blocks || {}).length} blocks
         </div>
-        
-        {/* 3D Controls hint */}
-        <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
-          <div>Left click: Place | Right click: Erase</div>
-          <div>3D Isometric View</div>
-        </div>
+      </div>
+      
+      {/* 3D Controls hint - positioned outside 3D transform */}
+      <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
+        <div>Left click: Place | Right click: Erase</div>
+        <div>3D Isometric View</div>
       </div>
     </div>
   );
