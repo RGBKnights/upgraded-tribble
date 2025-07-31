@@ -268,6 +268,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%) rotateX(60deg) rotateY(-45deg)',
+          transform: 'translate(-50%, -50%) rotateX(30deg) rotateY(-30deg)',
           transformStyle: 'preserve-3d'
         }}
       >
