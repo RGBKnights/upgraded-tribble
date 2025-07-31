@@ -681,7 +681,7 @@
     "id": 128,
     "name": "sticky_piston",
     "displayName": "Sticky Piston",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/piston_top_sticky.png"
   },
   {
     "id": 129,
