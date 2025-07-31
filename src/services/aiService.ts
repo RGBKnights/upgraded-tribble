@@ -186,8 +186,21 @@ export class OpenRouterService {
 
   private parseAIResponse(response: string, availableBlocks: Block[]): AIResponse {
     try {
-      // Try to extract JSON from the response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      // Clean the response by removing markdown and comments
+      let cleanedResponse = response;
+      
+      // Remove markdown code block fences
+      cleanedResponse = cleanedResponse.replace(/```json\s*/gi, '');
+      cleanedResponse = cleanedResponse.replace(/```\s*/g, '');
+      
+      // Remove single-line comments (// ...)
+      cleanedResponse = cleanedResponse.replace(/\/\/.*$/gm, '');
+      
+      // Remove multi-line comments (/* ... */)
+      cleanedResponse = cleanedResponse.replace(/\/\*[\s\S]*?\*\//g, '');
+      
+      // Try to extract JSON from the cleaned response
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('No JSON found in AI response');
       }
