@@ -1056,12 +1056,6 @@
     "url": "blocks/farmland_wet.png"
   },
   {
-    "id": 196,
-    "name": "lit_furnace",
-    "displayName": "Furnace",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 8004,
     "name": "furnace",
     "displayName": "Furnace",
