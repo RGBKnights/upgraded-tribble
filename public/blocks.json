@@ -2331,7 +2331,7 @@
     "id": 450,
     "name": "activator_rail",
     "displayName": "Activator Rail",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/rail_activator.png"
   },
   {
     "id": 451,
