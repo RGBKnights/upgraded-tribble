@@ -92,27 +92,25 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     const isCurrentLayer = blockData.layerIndex === currentLayerIndex;
     const blockSize = 32; // Size of each block in pixels
     
-    // Calculate 3D position with isometric projection
-    const isoX = (blockData.x - blockData.z) * (blockSize * 0.5);
-    const isoY = (blockData.x + blockData.z) * (blockSize * 0.25) - (blockData.y * blockSize * 0.75);
-    
     const key = `${blockData.x}-${blockData.y}-${blockData.z}`;
     
     return (
       <div
         key={key}
-        className={`absolute cursor-crosshair transition-all duration-200 ${
+        className={`absolute cursor-crosshair transition-all duration-200 border ${
           isCurrentLayer ? 'z-20 ring-2 ring-blue-400/50' : 'z-10'
         }`}
         style={{
           width: `${blockSize}px`,
           height: `${blockSize}px`,
-          left: `${isoX}px`,
-          top: `${isoY}px`,
+          left: `${blockData.x * blockSize}px`,
+          top: `${blockData.z * blockSize}px`,
+          transform: `translateZ(${blockData.y * blockSize}px)`,
           backgroundImage: `url(${block.url})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: isCurrentLayer ? 1 : 0.8
+          opacity: isCurrentLayer ? 1 : 0.8,
+          transformStyle: 'preserve-3d'
         }}
         onMouseDown={(e) => handleMouseDown(blockData.x, blockData.z, e)}
         onMouseEnter={() => handleMouseEnter(blockData.x, blockData.z)}
@@ -122,32 +120,32 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     );
   };
 
-  // Render grid overlay for current layer
-  const renderGridOverlay = () => {
+  // Render 3D blocks and grid
+  const render3DBlocks = () => {
     const blockSize = 32;
-    const gridCells = [];
+    const elements = [];
     
+    // Render grid for current layer
     for (let z = 0; z < height; z++) {
       for (let x = 0; x < width; x++) {
-        const isoX = (x - z) * (blockSize * 0.5);
-        const isoY = (x + z) * (blockSize * 0.25) - (currentLayerIndex * blockSize * 0.75);
-        
         // Check if there's already a block at this position
         const key = `${x},${z}`;
         const currentLayer = layers[currentLayerIndex];
         const hasBlock = currentLayer?.blocks[key];
         
-        gridCells.push(
+        elements.push(
           <div
             key={`grid-${x}-${z}`}
-            className={`absolute border border-gray-600/30 hover:border-blue-400/60 hover:bg-blue-400/10 transition-all ${
+            className={`absolute border border-gray-600/50 hover:border-blue-400/60 hover:bg-blue-400/20 transition-all cursor-crosshair ${
               hasBlock ? 'bg-gray-800/20' : 'bg-transparent'
             }`}
             style={{
               width: `${blockSize}px`,
               height: `${blockSize}px`,
-              left: `${isoX}px`,
-              top: `${isoY}px`,
+              left: `${x * blockSize}px`,
+              top: `${z * blockSize}px`,
+              transform: `translateZ(${currentLayerIndex * blockSize}px)`,
+              transformStyle: 'preserve-3d'
             }}
             onMouseDown={(e) => handleMouseDown(x, z, e)}
             onMouseEnter={() => handleMouseEnter(x, z)}
@@ -157,7 +155,13 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       }
     }
     
-    return gridCells;
+    // Add all blocks
+    allBlocks.forEach(blockData => {
+      const blockElement = renderBlock(blockData);
+      if (blockElement) elements.push(blockElement);
+    });
+    
+    return elements;
   };
 
   const allBlocks = getAllBlocks();
@@ -249,28 +253,26 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     <div 
       className="relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none"
       style={{ 
-        width: `${containerWidth}px`, 
-        height: `${containerHeight}px`,
+        width: '800px', 
+        height: '600px',
         minWidth: '600px',
         minHeight: '400px'
       }}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* 3D Scene Container */}
-      <div 
-        className="relative w-full h-full"
+      {/* 3D Scene Container with isometric transform */}
+      <div
+        className="absolute"
         style={{
-          perspective: '1200px',
-          perspectiveOrigin: 'center center',
-          transform: 'translateX(50%) translateY(30%)'
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%) rotateX(60deg) rotateY(-45deg)',
+          transformStyle: 'preserve-3d'
         }}
       >
-        {/* Grid overlay for current layer */}
-        {renderGridOverlay()}
-        
-        {/* Render all blocks in 3D space */}
-        {allBlocks.map(blockData => renderBlock(blockData))}
+        {/* Render 3D blocks and grid */}
+        {render3DBlocks()}
       </div>
       
       {/* Layer indicator - positioned outside 3D transform */}
