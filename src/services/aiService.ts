@@ -124,24 +124,13 @@ Remember: This is a layer-by-layer 3D build system. Each instruction places one 
 
   private parseAIResponse(response: string, availableBlocks: Block[]): AIResponse {
     try {
-      // Clean the response and try to extract JSON
-      let cleanResponse = response.trim();
-      
-      // Remove markdown code blocks if present
-      cleanResponse = cleanResponse.replace(/```json\s*/, '').replace(/```\s*$/, '');
-      
-      // Remove any text before the first { and after the last }
-      const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/);
+      // Try to extract JSON from the response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('No JSON found in AI response');
       }
 
-      let jsonString = jsonMatch[0];
-      
-      // Remove any comments from the JSON
-      jsonString = jsonString.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-      
-      const parsed = JSON.parse(jsonString);
+      const parsed = JSON.parse(jsonMatch[0]);
       
       if (!parsed.instructions || !Array.isArray(parsed.instructions)) {
         throw new Error('Invalid response format: missing instructions array');
