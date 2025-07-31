@@ -94,7 +94,14 @@ COORDINATE SYSTEM:
 - Y: layer/height (0 = bottom, ${dimensions.layers - 1} = top)
 - Z: front to back (0 to ${dimensions.height - 1})
 
-RESPONSE FORMAT (JSON):
+RESPONSE FORMAT - RETURN ONLY VALID JSON:
+You must respond with ONLY a valid JSON object. Do not include:
+- Comments (// or /* */)
+- Markdown formatting (```json)
+- Extra text before or after the JSON
+- Any characters outside the JSON object
+
+Example valid response:
 {
   "explanation": "Brief description of what you're building and design approach",
   "instructions": [
@@ -117,13 +124,24 @@ Remember: This is a layer-by-layer 3D build system. Each instruction places one 
 
   private parseAIResponse(response: string, availableBlocks: Block[]): AIResponse {
     try {
-      // Try to extract JSON from the response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      // Clean the response and try to extract JSON
+      let cleanResponse = response.trim();
+      
+      // Remove markdown code blocks if present
+      cleanResponse = cleanResponse.replace(/```json\s*/, '').replace(/```\s*$/, '');
+      
+      // Remove any text before the first { and after the last }
+      const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('No JSON found in AI response');
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      let jsonString = jsonMatch[0];
+      
+      // Remove any comments from the JSON
+      jsonString = jsonString.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      
+      const parsed = JSON.parse(jsonString);
       
       if (!parsed.instructions || !Array.isArray(parsed.instructions)) {
         throw new Error('Invalid response format: missing instructions array');
