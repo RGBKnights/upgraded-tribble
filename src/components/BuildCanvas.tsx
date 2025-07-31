@@ -26,7 +26,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   const [drawMode, setDrawMode] = useState<'place' | 'erase'>('place');
   
   // 3D Camera controls
-  const [cameraRotationX, setCameraRotationX] = useState(90); // Top-down view
+  const [cameraRotationX, setCameraRotationX] = useState(75); // Angled top-down view
   const [cameraRotationY, setCameraRotationY] = useState(0); // Straight alignment
   const [cameraZoom, setCameraZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
@@ -83,7 +83,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     
     // Rotate camera based on mouse movement
     setCameraRotationY(prev => prev + deltaX * 0.5);
-    setCameraRotationX(prev => Math.max(45, Math.min(90, prev - deltaY * 0.5)));
+    setCameraRotationX(prev => Math.max(60, Math.min(90, prev - deltaY * 0.5)));
     
     setLastMousePos({ x: event.clientX, y: event.clientY });
   }, [viewMode, isDragging, lastMousePos]);
