@@ -95,7 +95,7 @@ export const LayerManager: React.FC<LayerManagerProps> = ({
             </div>
             
             <div className="text-xs text-gray-400">
-              {Object.keys(layer.blocks).length} blocks
+              {Object.keys(layer.blocks).length} blocks placed
             </div>
             
             

@@ -21,7 +21,7 @@ export interface Block {
 export interface BuildLayer {
   id: string;
   name: string;
-  blocks: { [key: string]: number }; // position key -> block id
+  blocks: { [key: string]: { blockId: number; x: number; y: number; z: number } }; // position key -> block with 3D coords
   visible: boolean;
 }
 

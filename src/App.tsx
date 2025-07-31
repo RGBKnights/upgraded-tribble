@@ -134,7 +134,12 @@ function App() {
           delete newBuild.layers[y].blocks[key];
         } else {
           // Place the block
-          newBuild.layers[y].blocks[key] = blockId;
+          newBuild.layers[y].blocks[key] = {
+            blockId,
+            x,
+            y,
+            z
+          };
         }
       }
     });

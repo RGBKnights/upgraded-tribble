@@ -23,26 +23,26 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawMode, setDrawMode] = useState<'place' | 'erase'>('place');
 
-  const handleMouseDown = useCallback((x: number, y: number, event: React.MouseEvent) => {
+  const handleMouseDown = useCallback((x: number, z: number, event: React.MouseEvent) => {
     event.preventDefault();
     setIsDrawing(true);
     
     if (event.button === 0) { // Left click
       setDrawMode('place');
-      onPlaceBlock(x, y, selectedBlockId);
+      onPlaceBlock(x, z, selectedBlockId);
     } else if (event.button === 2) { // Right click
       setDrawMode('erase'); 
-      onPlaceBlock(x, y, 0); // Air block (id 0)
+      onPlaceBlock(x, z, 0); // Air block (id 0)
     }
   }, [selectedBlockId, onPlaceBlock]);
 
-  const handleMouseEnter = useCallback((x: number, y: number) => {
+  const handleMouseEnter = useCallback((x: number, z: number) => {
     if (!isDrawing) return;
     
     if (drawMode === 'place') {
-      onPlaceBlock(x, y, selectedBlockId);
+      onPlaceBlock(x, z, selectedBlockId);
     } else {
-      onPlaceBlock(x, y, 0); // Air block (id 0)
+      onPlaceBlock(x, z, 0); // Air block (id 0)
     }
   }, [isDrawing, drawMode, selectedBlockId, onPlaceBlock]);
 
@@ -50,79 +50,162 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     setIsDrawing(false);
   }, []);
 
-  const renderCell = (x: number, y: number) => {
-    const key = `${x},${y}`;
+  // Get all blocks in 3D space
+  const getAllBlocks = () => {
+    const allBlocks: Array<{ blockId: number; x: number; y: number; z: number; layerIndex: number; visible: boolean }> = [];
     
-    // Get all visible layers at this position, from bottom to top
-    const stackedBlocks = layers
-      .map((layer, index) => ({
-        layer,
-        layerIndex: index,
-        blockId: layer.blocks[key]
-      }))
-      .filter(item => item.layer.visible && item.blockId && item.blockId !== 0)
-      .reverse(); // Reverse to render from bottom to top
+    layers.forEach((layer, layerIndex) => {
+      if (!layer.visible) return;
+      
+      Object.entries(layer.blocks).forEach(([key, blockData]) => {
+        if (typeof blockData === 'number') {
+          // Legacy format - convert
+          const [x, z] = key.split(',').map(Number);
+          allBlocks.push({
+            blockId: blockData,
+            x,
+            y: layerIndex,
+            z,
+            layerIndex,
+            visible: true
+          });
+        } else {
+          // New format with 3D coordinates
+          allBlocks.push({
+            ...blockData,
+            layerIndex,
+            visible: true
+          });
+        }
+      });
+    });
     
-    const isCurrentLayer = (layerIndex: number) => layerIndex === currentLayerIndex;
+    return allBlocks;
+  };
+
+  const renderBlock = (blockData: { blockId: number; x: number; y: number; z: number; layerIndex: number; visible: boolean }) => {
+    const block = getBlockById(blockData.blockId);
+    if (!block || block.name === 'air' || blockData.blockId === 0) return null;
+
+    const isCurrentLayer = blockData.layerIndex === currentLayerIndex;
+    const blockSize = 32; // Size of each block in pixels
+    
+    // Calculate 3D position with isometric projection
+    const isoX = (blockData.x - blockData.z) * (blockSize * 0.5);
+    const isoY = (blockData.x + blockData.z) * (blockSize * 0.25) - (blockData.y * blockSize * 0.75);
+    
+    const key = `${blockData.x}-${blockData.y}-${blockData.z}`;
     
     return (
       <div
         key={key}
-        className={`
-          w-8 h-8 border border-gray-600/30 cursor-crosshair relative
-          transition-all duration-75 hover:border-blue-400/60 bg-gray-800/20 hover:bg-gray-700/30
-        `}
-        onMouseDown={(e) => handleMouseDown(x, y, e)}
-        onMouseEnter={() => handleMouseEnter(x, y)}
+        className={`absolute cursor-crosshair transition-all duration-200 ${
+          isCurrentLayer ? 'z-20 ring-2 ring-blue-400/50' : 'z-10'
+        }`}
+        style={{
+          width: `${blockSize}px`,
+          height: `${blockSize}px`,
+          left: `${isoX}px`,
+          top: `${isoY}px`,
+          backgroundImage: `url(${block.url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: isCurrentLayer ? 1 : 0.8,
+          transform: `perspective(800px) rotateX(30deg) rotateY(-15deg)`,
+          transformStyle: 'preserve-3d'
+        }}
+        onMouseDown={(e) => handleMouseDown(blockData.x, blockData.z, e)}
+        onMouseEnter={() => handleMouseEnter(blockData.x, blockData.z)}
         onContextMenu={(e) => e.preventDefault()}
-        title={stackedBlocks.length > 0 ? stackedBlocks[stackedBlocks.length - 1].layer.name : 'Empty'}
-      >
-        {/* Render stacked blocks */}
-        {stackedBlocks.map((item, stackIndex) => {
-          const block = getBlockById(item.blockId);
-          if (!block || block.name === 'air') return null;
-          
-          return (
-            <div
-              key={`${item.layerIndex}-${stackIndex}`}
-              className={`
-                absolute inset-0 bg-cover bg-center
-                ${isCurrentLayer(item.layerIndex) ? 'z-10' : `z-${stackIndex}`}
-                ${isCurrentLayer(item.layerIndex) ? 'opacity-100' : 'opacity-70'}
-              `}
-              style={{
-                backgroundImage: `url(${block.url})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            />
-          );
-        })}
-        
-        {/* Current layer editing overlay */}
-        {isCurrentLayer && (
-          <div className="absolute inset-0 border-2 border-blue-400/20 pointer-events-none" />
-        )}
-      </div>
+        title={`${block.displayName} (${blockData.x}, ${blockData.y}, ${blockData.z})`}
+      />
     );
   };
 
+  // Render grid overlay for current layer
+  const renderGridOverlay = () => {
+    const blockSize = 32;
+    const gridCells = [];
+    
+    for (let z = 0; z < height; z++) {
+      for (let x = 0; x < width; x++) {
+        const isoX = (x - z) * (blockSize * 0.5);
+        const isoY = (x + z) * (blockSize * 0.25) - (currentLayerIndex * blockSize * 0.75);
+        
+        // Check if there's already a block at this position
+        const key = `${x},${z}`;
+        const currentLayer = layers[currentLayerIndex];
+        const hasBlock = currentLayer?.blocks[key];
+        
+        gridCells.push(
+          <div
+            key={`grid-${x}-${z}`}
+            className={`absolute border border-gray-600/30 hover:border-blue-400/60 hover:bg-blue-400/10 transition-all ${
+              hasBlock ? 'bg-gray-800/20' : 'bg-transparent'
+            }`}
+            style={{
+              width: `${blockSize}px`,
+              height: `${blockSize}px`,
+              left: `${isoX}px`,
+              top: `${isoY}px`,
+              transform: `perspective(800px) rotateX(30deg) rotateY(-15deg)`,
+              transformStyle: 'preserve-3d'
+            }}
+            onMouseDown={(e) => handleMouseDown(x, z, e)}
+            onMouseEnter={() => handleMouseEnter(x, z)}
+            onContextMenu={(e) => e.preventDefault()}
+          />
+        );
+      }
+    }
+    
+    return gridCells;
+  };
+
+  const allBlocks = getAllBlocks();
+  const containerWidth = (width + height) * 16 + 200; // Approximate width for isometric view
+  const containerHeight = (width + height) * 8 + (layers.length * 32) + 200; // Approximate height
+
   return (
     <div 
-      className="inline-block bg-gray-900/10 p-4 rounded-lg border border-gray-700/30"
+      className="relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none"
+      style={{ 
+        width: `${containerWidth}px`, 
+        height: `${containerHeight}px`,
+        minWidth: '600px',
+        minHeight: '400px'
+      }}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* 3D Scene Container */}
       <div 
-        className="grid gap-0 select-none"
-        style={{ gridTemplateColumns: `repeat(${width}, 1fr)` }}
+        className="relative w-full h-full"
+        style={{
+          perspective: '1200px',
+          perspectiveOrigin: 'center center',
+          transform: 'translateX(50%) translateY(30%)'
+        }}
       >
-        {Array.from({ length: height }, (_, y) =>
-          Array.from({ length: width }, (_, x) => renderCell(x, y))
-        )}
-      </div>
-      <div className="mt-2 text-xs text-gray-500 text-center">
-        Left click: Place | Right click: Erase | Drag to paint
+        {/* Grid overlay for current layer */}
+        {renderGridOverlay()}
+        
+        {/* Render all blocks in 3D space */}
+        {allBlocks.map(blockData => renderBlock(blockData))}
+        
+        {/* Layer indicator */}
+        <div className="absolute top-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-sm z-30">
+          Layer {currentLayerIndex + 1} of {layers.length}
+          <div className="text-xs text-gray-300 mt-1">
+            {Object.keys(layers[currentLayerIndex]?.blocks || {}).length} blocks
+          </div>
+        </div>
+        
+        {/* 3D Controls hint */}
+        <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
+          <div>Left click: Place | Right click: Erase</div>
+          <div>PageUp/PageDown: Switch layers</div>
+        </div>
       </div>
     </div>
   );

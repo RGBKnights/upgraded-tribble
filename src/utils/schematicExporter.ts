@@ -27,7 +27,21 @@ export const exportToSchematic = (build: Build, getBlockById: (id: number) => Bl
   // Process each layer
   layers.forEach((layer, layerIndex) => {
     Object.entries(layer.blocks).forEach(([posKey, blockId]) => {
-      const [x, z] = posKey.split(',').map(Number);
+      let x, z, blockId;
+      
+      if (typeof blockData === 'number') {
+        // Legacy format
+        const [parsedX, parsedZ] = posKey.split(',').map(Number);
+        x = parsedX;
+        z = parsedZ;
+        blockId = blockData;
+      } else {
+        // New format with 3D coordinates
+        x = blockData.x;
+        z = blockData.z;
+        blockId = blockData.blockId;
+      }
+      
       const block = getBlockById(blockId);
       
       if (!block || x >= width || z >= depth) return;

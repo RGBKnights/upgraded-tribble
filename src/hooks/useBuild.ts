@@ -39,7 +39,12 @@ export const useBuild = () => {
     if (blockId === 0) { // Air block - remove
       delete currentLayer.blocks[key];
     } else {
-      currentLayer.blocks[key] = blockId;
+      currentLayer.blocks[key] = {
+        blockId,
+        x,
+        y: currentLayerIndex,
+        z: y
+      };
     }
     
     newBuild.layers[currentLayerIndex] = currentLayer;
