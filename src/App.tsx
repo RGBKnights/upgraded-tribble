@@ -9,6 +9,7 @@ import { useBlocks } from './hooks/useBlocks';
 import { saveBuild } from './utils/buildStorage';
 import { downloadSchematic } from './utils/schematicExporter';
 import { Build } from './types/Block';
+import { AIBuildChat } from './components/AIBuildChat';
 
 function App() {
   const {
@@ -41,6 +42,7 @@ function App() {
   } = useBlocks();
 
   const [showBuildManager, setShowBuildManager] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   // Keyboard navigation for layers
   useEffect(() => {
@@ -85,6 +87,45 @@ function App() {
     setCurrentLayerIndex(0);
   };
 
+  const handleApplyAIBuild = (instructions: any[], explanation: string) => {
+    // Clear all layers first
+    const clearedBuild = {
+      ...build,
+      layers: build.layers.map(layer => ({
+        ...layer,
+        blocks: {}
+      }))
+    };
+    
+    // Apply AI instructions
+    const newBuild = { ...clearedBuild };
+    
+    instructions.forEach(instruction => {
+      const { x, y, z, blockId } = instruction;
+      
+      // Make sure we have enough layers
+      while (newBuild.layers.length <= y) {
+        const newLayer = {
+          id: `layer-${Date.now()}-${newBuild.layers.length}`,
+          name: `Layer ${newBuild.layers.length + 1}`,
+          blocks: {},
+          visible: true
+        };
+        newBuild.layers.push(newLayer);
+      }
+      
+      // Place the block if coordinates are valid
+      if (x >= 0 && x < build.width && z >= 0 && z < build.height && y >= 0) {
+        const key = `${x},${z}`;
+        newBuild.layers[y].blocks[key] = blockId;
+      }
+    });
+    
+    newBuild.updatedAt = new Date().toISOString();
+    setBuild(newBuild);
+    setCurrentLayerIndex(0);
+  };
+
   const currentLayer = build.layers[currentLayerIndex];
 
   return (
@@ -100,6 +141,7 @@ function App() {
         onExport={handleExport}
         gridSize={{ width: build.width, height: build.height }}
         onResizeBuild={resizeBuild}
+        onOpenAI={() => setShowAIChat(true)}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -155,6 +197,14 @@ function App() {
         onLoadBuild={handleLoadBuild}
       />
 
+      <AIBuildChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        availableBlocks={filteredBlocks}
+        build={build}
+        onApplyBuild={handleApplyAIBuild}
+        getBlockById={getBlockById}
+      />
     </div>
   );
 }
