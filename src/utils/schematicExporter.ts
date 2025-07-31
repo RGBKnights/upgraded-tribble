@@ -26,23 +26,23 @@ export const exportToSchematic = (build: Build, getBlockById: (id: number) => Bl
   
   // Process each layer
   layers.forEach((layer, layerIndex) => {
-    Object.entries(layer.blocks).forEach(([posKey, blockId]) => {
-      let x, z, blockId;
+    Object.entries(layer.blocks).forEach(([posKey, blockValue]) => {
+      let x, z, finalBlockId;
       
-      if (typeof blockData === 'number') {
+      if (typeof blockValue === 'number') {
         // Legacy format
         const [parsedX, parsedZ] = posKey.split(',').map(Number);
         x = parsedX;
         z = parsedZ;
-        blockId = blockData;
+        finalBlockId = blockValue;
       } else {
         // New format with 3D coordinates
-        x = blockData.x;
-        z = blockData.z;
-        blockId = blockData.blockId;
+        x = blockValue.x;
+        z = blockValue.z;
+        finalBlockId = blockValue.blockId;
       }
       
-      const block = getBlockById(blockId);
+      const block = getBlockById(finalBlockId);
       
       if (!block || x >= width || z >= depth) return;
       
