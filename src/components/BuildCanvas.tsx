@@ -27,7 +27,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   
   // 3D Camera controls
   const [cameraRotationX, setCameraRotationX] = useState(60); // Isometric angle
-  const [cameraRotationY, setCameraRotationY] = useState(-45); // Side angle
+  const [cameraRotationY, setCameraRotationY] = useState(45); // Side angle
   const [cameraZoom, setCameraZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
