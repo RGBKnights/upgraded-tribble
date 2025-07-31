@@ -295,25 +295,27 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   // 3D View Rendering  
   const render3DView = () => (
     <div 
-      className="relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none"
+      className="relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none cursor-grab active:cursor-grabbing"
       style={{ 
         width: '800px', 
         height: '600px',
         minWidth: '600px',
         minHeight: '400px'
       }}
+      onMouseDown={handle3DMouseDown}
+      onMouseMove={handle3DMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onWheel={handle3DWheel}
     >
-      {/* 3D Scene Container with isometric transform */}
+      {/* 3D Scene Container with camera transform */}
       <div
         className="absolute"
         style={{
           left: '50%',
-          left: '50%',
           top: '30%',
-          transformOrigin: `${(width * 16)}px ${(height * 16)}px 0px`,
-          transform: 'translate(-50%, -50%) rotateX(70deg) rotateY(-15deg)',
+          transformOrigin: `${(width * 16)}px ${(height * 16)}px 0px`, 
+          transform: `translate(-50%, -50%) scale(${cameraZoom}) rotateX(${cameraRotationX}deg) rotateY(${cameraRotationY}deg)`,
           transformStyle: 'preserve-3d'
         }}
       >
@@ -331,8 +333,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       
       {/* 3D Controls hint - positioned outside 3D transform */}
       <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
-        <div>Left click: Place | Right click: Erase</div>
-        <div>3D Isometric View</div>
+        <div>Mouse: Rotate camera | Wheel: Zoom</div>
+        <div>3D Isometric View (Camera Controls)</div>
       </div>
     </div>
   );
