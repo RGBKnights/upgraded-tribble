@@ -2226,12 +2226,6 @@
     "url": "blocks/repeater_on.png"
   },
   {
-    "id": 8011,
-    "name": "unpowered_comparator",
-    "displayName": "Redstone Comparator",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 442,
     "name": "daylight_detector",
     "displayName": "Daylight Detector",
