@@ -43,9 +43,6 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     if (event.button === 0) { // Left click
       setDrawMode('place');
       onPlaceBlock(x, z, selectedBlockId);
-    } else if (event.button === 2) { // Right click
-      setDrawMode('erase'); 
-      onPlaceBlock(x, z, 0); // Air block (id 0)
     }
   }, [selectedBlockId, onPlaceBlock, viewMode]);
 
@@ -57,8 +54,6 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     
     if (drawMode === 'place') {
       onPlaceBlock(x, z, selectedBlockId);
-    } else {
-      onPlaceBlock(x, z, 0); // Air block (id 0)
     }
   }, [isDrawing, drawMode, selectedBlockId, onPlaceBlock, viewMode]);
 
@@ -70,6 +65,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   // 3D Camera control handlers
   const handle3DMouseDown = useCallback((event: React.MouseEvent) => {
     if (viewMode !== '3d') return;
+   // Only respond to left mouse button
+   if (event.button !== 0) return;
     event.preventDefault();
     setIsDragging(true);
     setLastMousePos({ x: event.clientX, y: event.clientY });
@@ -316,7 +313,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       {/* Layer indicator - positioned outside 3D transform */}
       {/* 3D Controls hint - positioned outside 3D transform */}
       <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
-        <div>Mouse: Rotate camera | Wheel: Zoom</div>
+       <div>Left Mouse: Rotate camera | Wheel: Zoom</div>
         <div>3D Isometric View (Camera Controls)</div>
       </div>
     </div>
