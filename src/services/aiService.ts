@@ -97,7 +97,7 @@ COORDINATE SYSTEM:
 RESPONSE FORMAT - RETURN ONLY VALID JSON:
 You must respond with ONLY a valid JSON object. Do not include:
 - Comments (// or /* */)
-- Markdown formatting (```json)
+- Markdown formatting (``\`json)
 - Extra text before or after the JSON
 - Any characters outside the JSON object
 
