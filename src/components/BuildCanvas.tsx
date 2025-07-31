@@ -247,7 +247,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       </div>
     );
   };
-  return (
+  
   // 3D View Rendering  
   const render3DView = () => (
     <div 
@@ -290,7 +290,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
           <div>3D Isometric View</div>
         </div>
       </div>
-    );
+    </div>
+  );
 
   return (
     <div>
