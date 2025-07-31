@@ -117,7 +117,7 @@ export class OpenRouterService {
     `;
     
     currentBuild.layers.forEach((layer, idx) => {
-    currentState +=   - y=${idx} "${layer.name}" blocks: ${Object.keys(layer.blocks || {}).length}\n;
+     currentState += `  - y=${idx} "${layer.name}" blocks: ${Object.keys(layer.blocks || {}).length}\n`;
     });
     
     currentState += `
