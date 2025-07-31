@@ -78,10 +78,10 @@ export const AIBuildChat: React.FC<AIBuildChatProps> = ({
       const result = await aiService.generateBuildInstructions(
         userMessage.content,
         availableBlocks,
-        { 
+        {
           width: build.width,
           height: build.height,
-          layers: build.layers.length
+          layers: Math.max(build.layers.length, 3) // Ensure at least 3 layers for AI planning
         },
         {
           width: build.width,
@@ -105,6 +105,13 @@ export const AIBuildChat: React.FC<AIBuildChatProps> = ({
 
       // Apply the build instructions
       if (result.instructions.length > 0) {
+        console.log('AI generated', result.instructions.length, 'instructions');
+        const layerDistribution = {};
+        result.instructions.forEach(inst => {
+          layerDistribution[inst.y] = (layerDistribution[inst.y] || 0) + 1;
+        });
+        console.log('Layer distribution:', layerDistribution);
+        
         onApplyBuild(result.instructions, result.explanation);
         
         const systemMessage: Message = {

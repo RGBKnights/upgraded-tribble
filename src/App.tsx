@@ -88,11 +88,15 @@ function App() {
   };
 
   const handleApplyAIBuild = (instructions: any[], explanation: string) => {
+    console.log('Applying AI build with', instructions.length, 'instructions');
+    console.log('Instructions:', instructions);
+    
     // Start with current build
     const newBuild = { ...build };
     
     // Find the maximum Y coordinate to determine how many layers we need
     const maxY = Math.max(0, ...instructions.map(inst => inst.y || 0));
+    console.log('Max Y coordinate:', maxY);
     
     // Ensure we have enough layers
     while (newBuild.layers.length <= maxY) {
@@ -105,11 +109,19 @@ function App() {
       newBuild.layers.push(newLayer);
     };
     
+    console.log('Build now has', newBuild.layers.length, 'layers');
+    
     // Don't clear existing blocks - let AI decide what to keep/replace/remove
+    
+    // Track blocks per layer for debugging
+    const layerCounts = {};
     
     // Apply AI instructions
     instructions.forEach(instruction => {
       const { x, y, z, blockId } = instruction;
+      
+      // Track layer usage
+      layerCounts[y] = (layerCounts[y] || 0) + 1;
       
       // Validate coordinates and place block
       if (x >= 0 && x < build.width && 
@@ -126,6 +138,8 @@ function App() {
         }
       }
     });
+    
+    console.log('Blocks placed per layer:', layerCounts);
     
     newBuild.updatedAt = new Date().toISOString();
     setBuild(newBuild);

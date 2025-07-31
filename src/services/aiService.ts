@@ -156,17 +156,31 @@ export class OpenRouterService {
            '}\n\n' +
            'GUIDELINES:\n' +
            '1. Start from the bottom layer (y=0) and work up\n' +
-           '2. Use appropriate blocks for the structure:\n' +
+          '2. ALWAYS use multiple layers for any structure taller than 1 block:\n' +
+          '   - y=0: Foundation/ground floor\n' +
+          '   - y=1: Second floor/walls\n' +
+          '   - y=2: Third floor/roof\n' +
+          '   - Continue upward as needed\n' +
+          '3. For multi-story buildings:\n' +
+          '   - Place foundation blocks on y=0\n' +
+          '   - Build walls on y=1, y=2, etc.\n' +
+          '   - Add roofs on the top layer\n' +
+          '4. Example multi-layer house:\n' +
+          '   - y=0: Stone foundation blocks\n' +
+          '   - y=1: Wood plank walls with glass windows\n' +
+          '   - y=2: Wood plank roof\n' +
+          '5. Use appropriate blocks for the structure:\n' +
            '   - Stone/Cobblestone (ids: 1, 4) for foundations and walls\n' +
            '   - Wood planks (ids: 5, 126, 127, 128, 129, 130) for buildings and structures\n' +
            '   - Glass (id: 20) for windows\n' +
            '   - Air (id: 0) to remove blocks or create empty spaces\n' +
-           '3. Consider structural integrity - use solid, heavy blocks for foundations\n' +
-           '4. Be creative but practical with block choices\n' +
-           '5. CRITICAL: Only use block IDs from the available blocks list above\n' +
-           '6. Keep coordinates within the build space bounds\n' +
-           '7. Consider the build from all angles - it should look good from different viewpoints\n' +
-           '8. For air blocks or empty spaces, use blockId: 0 and blockName: "air"\n\n' +
+          '6. Consider structural integrity - use solid, heavy blocks for foundations\n' +
+          '7. Be creative but practical with block choices\n' +
+          '8. CRITICAL: Only use block IDs from the available blocks list above\n' +
+          '9. Keep coordinates within the build space bounds\n' +
+          '10. Consider the build from all angles - it should look good from different viewpoints\n' +
+          '11. For air blocks or empty spaces, use blockId: 0 and blockName: "air"\n' +
+          '12. IMPORTANT: Most builds should use at least 2-3 layers (y=0, y=1, y=2) for proper height\n\n' +
            'Remember: This is a layer-by-layer 3D build system. Each instruction places one block at specific coordinates.';
   }
 
