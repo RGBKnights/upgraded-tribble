@@ -42,8 +42,9 @@ export const useBlocks = () => {
 
   useEffect(() => {
     const filtered = blocks.filter(block => 
-      block.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      block.name.toLowerCase().includes(searchTerm.toLowerCase())
+      !block.url.includes('missing_texture.png') &&
+      (block.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      block.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredBlocks(filtered);
   }, [blocks, searchTerm]);
