@@ -9,6 +9,7 @@ import { useBlocks } from './hooks/useBlocks';
 import { saveBuild } from './utils/buildStorage';
 import { downloadSchematic } from './utils/schematicExporter';
 import { Build } from './types/Block';
+import { AIBuildChat } from './components/AIBuildChat';
 
 function App() {
   const {
@@ -41,6 +42,7 @@ function App() {
   } = useBlocks();
 
   const [showBuildManager, setShowBuildManager] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   // Keyboard navigation for layers
   useEffect(() => {
@@ -85,6 +87,65 @@ function App() {
     setCurrentLayerIndex(0);
   };
 
+  const handleApplyAIBuild = (instructions: any[], explanation: string) => {
+    console.log('Applying AI build with', instructions.length, 'instructions');
+    console.log('Instructions:', instructions);
+    
+    // Start with current build
+    const newBuild = { ...build };
+    
+    // Find the maximum Y coordinate to determine how many layers we need
+    const maxY = Math.max(0, ...instructions.map(inst => inst.y || 0));
+    console.log('Max Y coordinate:', maxY);
+    
+    // Ensure we have enough layers
+    while (newBuild.layers.length <= maxY) {
+      const newLayer = {
+        id: `layer-${Date.now()}-${newBuild.layers.length}`,
+        name: `Layer ${newBuild.layers.length + 1}`,
+        blocks: {},
+        visible: true
+      };
+      newBuild.layers.push(newLayer);
+    };
+    
+    console.log('Build now has', newBuild.layers.length, 'layers');
+    
+    // Don't clear existing blocks - let AI decide what to keep/replace/remove
+    
+    // Track blocks per layer for debugging
+    const layerCounts = {};
+    
+    // Apply AI instructions
+    instructions.forEach(instruction => {
+      const { x, y, z, blockId } = instruction;
+      
+      // Track layer usage
+      layerCounts[y] = (layerCounts[y] || 0) + 1;
+      
+      // Validate coordinates and place block
+      if (x >= 0 && x < build.width && 
+          z >= 0 && z < build.height && 
+          y >= 0 && y < newBuild.layers.length) {
+        const key = `${x},${z}`;
+        
+        if (blockId === 0) {
+          // Air block - remove any existing block at this position
+          delete newBuild.layers[y].blocks[key];
+        } else {
+          // Place the block
+          newBuild.layers[y].blocks[key] = blockId;
+        }
+      }
+    });
+    
+    console.log('Blocks placed per layer:', layerCounts);
+    
+    newBuild.updatedAt = new Date().toISOString();
+    setBuild(newBuild);
+    setCurrentLayerIndex(0);
+  };
+
   const currentLayer = build.layers[currentLayerIndex];
 
   return (
@@ -100,6 +161,7 @@ function App() {
         onExport={handleExport}
         gridSize={{ width: build.width, height: build.height }}
         onResizeBuild={resizeBuild}
+        onOpenAI={() => setShowAIChat(true)}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -155,6 +217,14 @@ function App() {
         onLoadBuild={handleLoadBuild}
       />
 
+      <AIBuildChat
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+        availableBlocks={filteredBlocks}
+        build={build}
+        onApplyBuild={handleApplyAIBuild}
+        getBlockById={getBlockById}
+      />
     </div>
   );
 }

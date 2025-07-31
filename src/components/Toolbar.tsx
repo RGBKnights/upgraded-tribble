@@ -6,7 +6,8 @@ import {
   FolderOpen, 
   Download, 
   Grid,
-  Maximize
+  Maximize,
+  Sparkles
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -20,6 +21,7 @@ interface ToolbarProps {
   onExport: () => void;
   gridSize: { width: number; height: number };
   onResizeBuild: (width: number, height: number) => void;
+  onOpenAI: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -32,7 +34,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onLoad,
   onExport,
   gridSize,
-  onResizeBuild
+  onResizeBuild,
+  onOpenAI
 }) => {
   const [showResizeDialog, setShowResizeDialog] = React.useState(false);
   const [newWidth, setNewWidth] = React.useState(gridSize.width);
@@ -90,6 +93,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           </div>
 
           {/* File Operations */}
+          <button
+            onClick={onOpenAI}
+            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors text-purple-400"
+            title="AI Build Assistant"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+          
           <button
             onClick={() => setShowResizeDialog(true)}
             className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors text-white"
