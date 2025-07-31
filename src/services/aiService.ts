@@ -88,101 +88,154 @@ export class OpenRouterService {
   }
 
   private createSystemPrompt(
-    blocks: Block[], 
-    dimensions: { width: number; height: number; layers: number },
-    currentBuild?: CurrentBuildState
-  ): string {
-    const blockList = blocks.slice(0, 100).map(b => 
-      `${b.id}: ${b.displayName} (${b.name}) - Material: ${b.material}, Light: ${b.emitLight > 0 ? 'Yes' : 'No'}`
-    ).join('\n');
-    const maxX = dimensions.width - 1;
-    const maxY = dimensions.layers - 1;
-    const maxZ = dimensions.height - 1;
-    
-    let currentStateDescription = '';
-    if (currentBuild && currentBuild.layers.length > 0) {
-      currentStateDescription = '\n\nCURRENT BUILD STATE:\n';
-      currentStateDescription += 'The build currently has ' + currentBuild.layers.length + ' layers:\n';
-      
-      currentBuild.layers.forEach((layer, index) => {
-        const blockCount = Object.keys(layer.blocks).length;
-        currentStateDescription += '- Layer ' + index + ' (' + layer.name + '): ' + blockCount + ' blocks placed\n';
-        
-        if (blockCount > 0) {
-          currentStateDescription += '  Existing blocks:\n';
-          Object.entries(layer.blocks).forEach(([position, blockId]) => {
-            const [x, z] = position.split(',').map(Number);
-            const block = blocks.find(b => b.id === blockId);
-            if (block) {
-              currentStateDescription += '    x:' + x + ', y:' + index + ', z:' + z + ' = ' + block.displayName + '\n';
-            }
-          });
-        }
-      });
-      
-      currentStateDescription += '\nWhen modifying the build:\n';
-      currentStateDescription += '- You can keep existing blocks by not mentioning their positions\n';
-      currentStateDescription += '- You can replace blocks by placing new ones at existing positions\n';
-      currentStateDescription += '- You can remove blocks by placing air (blockId: 0) at their positions\n';
-      currentStateDescription += '- You can add new blocks to empty positions\n';
-      currentStateDescription += '- You can add new layers above the existing ones\n';
-    }
-    
-    return 'You are a Minecraft build designer. Generate block placement instructions for 3D builds.\n\n' +
-           'AVAILABLE BLOCKS:\n' +
-           blockList + '\n\n' +
-           'BUILD SPACE:\n' +
-           '- Width (X): 0 to ' + maxX + '\n' +
-           '- Height (Z): 0 to ' + maxZ + '\n' +
-           '- Layers (Y): 0 to ' + maxY + ' (0 = bottom layer)\n\n' +
-           currentStateDescription + '\n\n' +
-           'COORDINATE SYSTEM:\n' +
-           '- X: left to right (0 to ' + maxX + ')\n' +
-           '- Y: layer/height (0 = bottom, ' + maxY + ' = top)\n' +
-           '- Z: front to back (0 to ' + maxZ + ')\n\n' +
-           'RESPONSE FORMAT - RETURN ONLY VALID JSON:\n' +
-           'You must respond with ONLY a valid JSON object. Do not include:\n' +
-           '- Comments (// or /* */)\n' +
-           '- Markdown formatting (```json)\n' +
-           '- Extra text before or after the JSON\n' +
-           '- Any characters outside the JSON object\n\n' +
-           'Example valid response:\n' +
-           '{\n' +
-           '  "explanation": "Brief description of what you\'re building and design approach",\n' +
-           '  "instructions": [\n' +
-           '    {"x": 0, "y": 0, "z": 0, "blockId": 1, "blockName": "stone"},\n' +
-           '    {"x": 1, "y": 0, "z": 0, "blockId": 4, "blockName": "cobblestone"}\n' +
-           '  ]\n' +
-           '}\n\n' +
-           'GUIDELINES:\n' +
-           '1. Start from the bottom layer (y=0) and work up\n' +
-          '2. ALWAYS use multiple layers for any structure taller than 1 block:\n' +
-          '   - y=0: Foundation/ground floor\n' +
-          '   - y=1: Second floor/walls\n' +
-          '   - y=2: Third floor/roof\n' +
-          '   - Continue upward as needed\n' +
-          '3. For multi-story buildings:\n' +
-          '   - Place foundation blocks on y=0\n' +
-          '   - Build walls on y=1, y=2, etc.\n' +
-          '   - Add roofs on the top layer\n' +
-          '4. Example multi-layer house:\n' +
-          '   - y=0: Stone foundation blocks\n' +
-          '   - y=1: Wood plank walls with glass windows\n' +
-          '   - y=2: Wood plank roof\n' +
-          '5. Use appropriate blocks for the structure:\n' +
-           '   - Stone/Cobblestone (ids: 1, 4) for foundations and walls\n' +
-           '   - Wood planks (ids: 5, 126, 127, 128, 129, 130) for buildings and structures\n' +
-           '   - Glass (id: 20) for windows\n' +
-           '   - Air (id: 0) to remove blocks or create empty spaces\n' +
-          '6. Consider structural integrity - use solid, heavy blocks for foundations\n' +
-          '7. Be creative but practical with block choices\n' +
-          '8. CRITICAL: Only use block IDs from the available blocks list above\n' +
-          '9. Keep coordinates within the build space bounds\n' +
-          '10. Consider the build from all angles - it should look good from different viewpoints\n' +
-          '11. For air blocks or empty spaces, use blockId: 0 and blockName: "air"\n' +
-          '12. IMPORTANT: Most builds should use at least 2-3 layers (y=0, y=1, y=2) for proper height\n\n' +
-           'Remember: This is a layer-by-layer 3D build system. Each instruction places one block at specific coordinates.';
-  }
+blocks: Block[],
+dimensions: { width: number; height: number; layers: number },
+currentBuild?: CurrentBuildState
+): string {
+const maxX = dimensions.width - 1; // X: 0..maxX
+const maxY = dimensions.layers - 1; // Y: 0..maxY (layers)
+const maxZ = dimensions.height - 1; // Z: 0..maxZ (depth)
+
+// Compact block list to save tokens, but clear and unambiguous
+const blockList = blocks.slice(0, 120)
+.map(b => ${b.id}: ${b.displayName} (${b.name}))
+.join('\n');
+
+// Build simple palettes to guide material choices
+const palettes = this.buildBlockPalettes(blocks);
+
+// Summarize current build concisely
+let currentState = '';
+if (currentBuild && currentBuild.layers?.length) {
+currentState += `CURRENT BUILD STATE:
+
+Layers present: ${currentBuild.layers.length}
+
+Bounds: X 0..${maxX}, Y 0..${maxY}, Z 0..${maxZ}
+
+Existing blocks per layer (count):
+`;
+
+currentBuild.layers.forEach((layer, idx) => {
+currentState +=   - y=${idx} "${layer.name}" blocks: ${Object.keys(layer.blocks || {}).length}\n;
+});
+
+currentState += `
+Edit rules:
+
+Keep existing blocks by not mentioning their positions.
+
+Replace by placing a new block at the same (x,y,z).
+
+Remove by placing air (blockId: 0), but ONLY if air is in the available blocks list.
+
+You may add new layers above existing ones within Y 0..${maxY}.
+`;
+}
+
+// Clear, consistent environment and contract
+return [
+'ROLE',
+'You are a 3D voxel structure planner for a Minecraft-like builder. Your job is to design a coherent structure that fits within bounds and looks good from all sides, then output exact block placements.',
+'',
+'COORDINATE SYSTEM AND BOUNDS',
+`- Axes:
+
+X: width, left(0) -> right(${maxX})
+Z: depth, front(0) -> back(${maxZ})
+Y: height/layers, bottom(0) -> top(${maxY})
+Origin (0,0,0) is bottom-left-front when looking from the front.
+
+All placements MUST be within: 0<=X<=${maxX}, 0<=Y<=${maxY}, 0<=Z<=${maxZ},   '',   'AVAILABLE BLOCKS (only use these blockIds)',   blockList,   '',   'MATERIAL PALETTES (suggestions, still only use allowed ids above)',   - foundationCandidates: ${JSON.stringify(palettes.foundation)}
+
+wallCandidates: ${JSON.stringify(palettes.walls)}
+
+windowCandidates: ${JSON.stringify(palettes.windows)}
+
+roofCandidates: ${JSON.stringify(palettes.roof)}
+
+lightCandidates: ${JSON.stringify(palettes.lighting)}
+
+stairsCandidates: ${JSON.stringify(palettes.stairs)}
+
+slabCandidates: ${JSON.stringify(palettes.slabs)}
+
+doorCandidates: ${JSON.stringify(palettes.doors)}
+
+airId: ${palettes.air ?? 'none in palette'},   '',   currentState,   'DESIGN PROTOCOL',   1) Plan first:
+
+Choose a footprint that fits in X..Z bounds (e.g., centered rectangle).
+Choose a target height (number of layers) within 0..${maxY}.
+Assign roles to layers (e.g., y=0: foundation, y=1-2: walls and openings, top: roof).
+Prefer symmetry unless the user asks otherwise.
+Build layer-by-layer:
+y=0 (foundation): perimeter first, then floor fill. Use sturdy blocks from foundationCandidates.
+Middle layers (walls): build perimeters; leave door(s) and window openings; place windows using windowCandidates if provided.
+Top layer(s) (roof): cap neatly; stairs/slabs can create slopes; ensure overhangs fit bounds.
+Aesthetics & practicality:
+Center door(s) on front (Z small side) unless description specifies orientation.
+Keep window heights consistent.
+Use lighting blocks sparingly and symmetrically if present.
+Strict constraints:
+Only use blockIds listed in AVAILABLE BLOCKS.
+Do not invent ids or names.
+If air is not in the list, do not place air.
+Keep coordinates inside bounds, no duplicates, no collisions beyond purposeful replacement.
+Sorting & density:
+Sort placements by y, then z, then x.
+Prefer perimeter-first, then fill, to reduce overlaps and keep structure clean.,   '',   'OUTPUT CONTRACT (JSON ONLY)',   Return ONLY a valid JSON object with:
+{
+"explanation": string,
+"plan": {
+"footprint": string, // brief description
+"usedLayers": number[], // e.g., [0,1,2]
+"materials": { // optional, but helps coherence
+"foundation": number[],
+"walls": number[],
+"windows": number[],
+"roof": number[],
+"lighting": number[]
+}
+},
+"layers": [ // optional for your own reasoning
+{ "y": number, "summary": string }
+],
+"instructions": [ // REQUIRED: this is what will be executed
+{ "x": number, "y": number, "z": number, "blockId": number, "blockName": string }
+]
+}
+instructions must be within bounds and deduplicated.
+
+blockName should match the "name" or "displayName" of the used blockId from the available list.,   '',   'IMPORTANT',   - If the requested design cannot fit, scale it down.
+
+If a suggested category (e.g., windows) is unavailable, choose the closest alternative from the list and explain that choice.
+
+Use at least 2–3 layers for most structures unless the user description clearly indicates a 1-layer object.`,
+].join('\n');
+}
+
+  // Helper to build palettes from block names
+private buildBlockPalettes(blocks: Block[]) {
+  const has = (re: RegExp) => (b: Block) => re.test(b.name) || re.test(b.displayName);
+  const ids = (f: (b: Block) => boolean) => blocks.filter(f).map(b => b.id);
+  
+  const foundation = ids(/stone|cobble|brick|deepslate|basalt|concrete|terracotta|andesite|diorite|granite/i);
+  const walls = ids(/plank|wood|log|stone|brick|quartz|concrete|terracotta|deepslate/i);
+  const windows = ids(/glass|pane/i);
+  const roof = ids(/slab|stair|tile|brick|plank|deepslate|copper|shingle/i);
+  const lighting = ids(/torch|lantern|glow|shroom|sea.?lantern|lamp|redstone.?lamp/i);
+  const stairs = ids(/stair/i);
+  const slabs = ids(/slab/i);
+  const doors = ids(/door/i);
+  
+  // Try to find air if present
+  const airBlock = blocks.find(b => b.name === 'air' || b.displayName.toLowerCase() === 'air' || b.id === 0);
+  const air = airBlock ? airBlock.id : undefined;
+  
+  return { foundation, walls, windows, roof, lighting, stairs, slabs, doors, air };
+}
+
+
 
   private parseAIResponse(response: string, availableBlocks: Block[]): AIResponse {
     try {
