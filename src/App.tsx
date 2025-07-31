@@ -105,11 +105,7 @@ function App() {
       newBuild.layers.push(newLayer);
     };
     
-    // Clear existing blocks in affected layers
-    newBuild.layers = newBuild.layers.map(layer => ({
-      ...layer,
-      blocks: {}
-    }));
+    // Don't clear existing blocks - let AI decide what to keep/replace/remove
     
     // Apply AI instructions
     instructions.forEach(instruction => {
@@ -121,12 +117,13 @@ function App() {
           y >= 0 && y < newBuild.layers.length) {
         const key = `${x},${z}`;
         
-        // Only place non-air blocks (air blocks mean empty/removed)
-        if (blockId !== 0) {
+        if (blockId === 0) {
+          // Air block - remove any existing block at this position
+          delete newBuild.layers[y].blocks[key];
+        } else {
+          // Place the block
           newBuild.layers[y].blocks[key] = blockId;
         }
-        // For air blocks (blockId === 0), we simply don't add them to the blocks object
-        // which leaves the cell empty/air by default
       }
     });
     

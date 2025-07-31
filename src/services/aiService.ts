@@ -17,6 +17,16 @@ interface AIResponse {
   explanation: string;
 }
 
+interface CurrentBuildState {
+  width: number;
+  height: number;
+  layers: Array<{
+    name: string;
+    blocks: { [key: string]: number };
+    visible: boolean;
+  }>;
+}
+
 export class OpenRouterService {
   private apiKey: string;
   private baseUrl = 'https://openrouter.ai/api/v1';
@@ -28,9 +38,10 @@ export class OpenRouterService {
   async generateBuildInstructions(
     description: string,
     availableBlocks: Block[],
-    buildDimensions: { width: number; height: number; layers: number }
+    buildDimensions: { width: number; height: number; layers: number },
+    currentBuild?: CurrentBuildState
   ): Promise<AIResponse> {
-    const systemPrompt = this.createSystemPrompt(availableBlocks, buildDimensions);
+    const systemPrompt = this.createSystemPrompt(availableBlocks, buildDimensions, currentBuild);
     
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -76,13 +87,46 @@ export class OpenRouterService {
     }
   }
 
-  private createSystemPrompt(blocks: Block[], dimensions: { width: number; height: number; layers: number }): string {
+  private createSystemPrompt(
+    blocks: Block[], 
+    dimensions: { width: number; height: number; layers: number },
+    currentBuild?: CurrentBuildState
+  ): string {
     const blockList = blocks.slice(0, 100).map(b => 
       `${b.id}: ${b.displayName} (${b.name}) - Material: ${b.material}, Light: ${b.emitLight > 0 ? 'Yes' : 'No'}`
     ).join('\n');
     const maxX = dimensions.width - 1;
     const maxY = dimensions.layers - 1;
     const maxZ = dimensions.height - 1;
+    
+    let currentStateDescription = '';
+    if (currentBuild && currentBuild.layers.length > 0) {
+      currentStateDescription = '\n\nCURRENT BUILD STATE:\n';
+      currentStateDescription += 'The build currently has ' + currentBuild.layers.length + ' layers:\n';
+      
+      currentBuild.layers.forEach((layer, index) => {
+        const blockCount = Object.keys(layer.blocks).length;
+        currentStateDescription += '- Layer ' + index + ' (' + layer.name + '): ' + blockCount + ' blocks placed\n';
+        
+        if (blockCount > 0) {
+          currentStateDescription += '  Existing blocks:\n';
+          Object.entries(layer.blocks).forEach(([position, blockId]) => {
+            const [x, z] = position.split(',').map(Number);
+            const block = blocks.find(b => b.id === blockId);
+            if (block) {
+              currentStateDescription += '    x:' + x + ', y:' + index + ', z:' + z + ' = ' + block.displayName + '\n';
+            }
+          });
+        }
+      });
+      
+      currentStateDescription += '\nWhen modifying the build:\n';
+      currentStateDescription += '- You can keep existing blocks by not mentioning their positions\n';
+      currentStateDescription += '- You can replace blocks by placing new ones at existing positions\n';
+      currentStateDescription += '- You can remove blocks by placing air (blockId: 0) at their positions\n';
+      currentStateDescription += '- You can add new blocks to empty positions\n';
+      currentStateDescription += '- You can add new layers above the existing ones\n';
+    }
     
     return 'You are a Minecraft build designer. Generate block placement instructions for 3D builds.\n\n' +
            'AVAILABLE BLOCKS:\n' +
@@ -91,6 +135,7 @@ export class OpenRouterService {
            '- Width (X): 0 to ' + maxX + '\n' +
            '- Height (Z): 0 to ' + maxZ + '\n' +
            '- Layers (Y): 0 to ' + maxY + ' (0 = bottom layer)\n\n' +
+           currentStateDescription + '\n\n' +
            'COORDINATE SYSTEM:\n' +
            '- X: left to right (0 to ' + maxX + ')\n' +
            '- Y: layer/height (0 = bottom, ' + maxY + ' = top)\n' +

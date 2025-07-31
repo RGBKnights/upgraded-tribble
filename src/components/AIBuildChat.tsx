@@ -78,10 +78,19 @@ export const AIBuildChat: React.FC<AIBuildChatProps> = ({
       const result = await aiService.generateBuildInstructions(
         userMessage.content,
         availableBlocks,
-        {
+        { 
           width: build.width,
           height: build.height,
           layers: build.layers.length
+        },
+        {
+          width: build.width,
+          height: build.height,
+          layers: build.layers.map(layer => ({
+            name: layer.name,
+            blocks: layer.blocks,
+            visible: layer.visible
+          }))
         }
       );
 
