@@ -116,15 +116,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           >
             {viewMode === '2d' ? <Box className="w-4 h-4" /> : <Square className="w-4 h-4" />}
           </button>
-          
-          <button
-            onClick={() => setShowResizeDialog(true)}
-            className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors text-white"
-            title="Resize Build"
-          >
-            <Maximize className="w-4 h-4" />
-          </button>
-          
+
           <button
             onClick={onSave}
             className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors text-white"
