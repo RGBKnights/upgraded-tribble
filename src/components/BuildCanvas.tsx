@@ -271,11 +271,6 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
           )}
         </div>
 
-        {/* 2D Layer indicator */}
-        <div className="absolute top-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-sm z-30">
-          Layer {currentLayerIndex + 1} of {layers.length}
-        </div>
-
       </div>
     );
   };
