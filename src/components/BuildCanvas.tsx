@@ -112,9 +112,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
           backgroundImage: `url(${block.url})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: isCurrentLayer ? 1 : 0.8,
-          transform: `perspective(800px) rotateX(30deg) rotateY(-15deg)`,
-          transformStyle: 'preserve-3d'
+          opacity: isCurrentLayer ? 1 : 0.8
         }}
         onMouseDown={(e) => handleMouseDown(blockData.x, blockData.z, e)}
         onMouseEnter={() => handleMouseEnter(blockData.x, blockData.z)}
@@ -150,8 +148,6 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
               height: `${blockSize}px`,
               left: `${isoX}px`,
               top: `${isoY}px`,
-              transform: `perspective(800px) rotateX(30deg) rotateY(-15deg)`,
-              transformStyle: 'preserve-3d'
             }}
             onMouseDown={(e) => handleMouseDown(x, z, e)}
             onMouseEnter={() => handleMouseEnter(x, z)}
