@@ -26,8 +26,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   const [drawMode, setDrawMode] = useState<'place' | 'erase'>('place');
   
   // 3D Camera controls
-  const [cameraRotationX, setCameraRotationX] = useState(60); // Isometric angle
-  const [cameraRotationY, setCameraRotationY] = useState(45); // Side angle
+  const [cameraRotationX, setCameraRotationX] = useState(90); // Top-down view
+  const [cameraRotationY, setCameraRotationY] = useState(0); // Straight alignment
   const [cameraZoom, setCameraZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
@@ -83,7 +83,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     
     // Rotate camera based on mouse movement
     setCameraRotationY(prev => prev + deltaX * 0.5);
-    setCameraRotationX(prev => Math.max(10, Math.min(80, prev - deltaY * 0.5)));
+    setCameraRotationX(prev => Math.max(45, Math.min(90, prev - deltaY * 0.5)));
     
     setLastMousePos({ x: event.clientX, y: event.clientY });
   }, [viewMode, isDragging, lastMousePos]);
@@ -275,7 +275,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         <div className="absolute top-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-sm z-30">
           Layer {currentLayerIndex + 1} of {layers.length}
           <div className="text-xs text-gray-300 mt-1">
-            {Object.keys(currentLayer.blocks).length} blocks
+            <div>3D Top-Down View (Camera Controls)</div>
           </div>
         </div>
 
