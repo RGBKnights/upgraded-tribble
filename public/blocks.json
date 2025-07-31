@@ -1791,13 +1791,13 @@
     "id": 323,
     "name": "brown_mushroom_block",
     "displayName": "Brown Mushroom Block",
-    "url": "blocks/mushroom_brown.png"
+    "url": "blocks/mushroom_block_skin_brown.png"
   },
   {
     "id": 324,
     "name": "red_mushroom_block",
     "displayName": "Red Mushroom Block",
-    "url": "blocks/mushroom_red.png"
+    "url": "blocks/mushroom_block_skin_red.png"
   },
   {
     "id": 326,
