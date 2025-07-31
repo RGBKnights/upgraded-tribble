@@ -98,7 +98,7 @@ export class OpenRouterService {
     
     // Compact block list to save tokens, but clear and unambiguous
     const blockList = blocks.slice(0, 120)
-    .map(b => ${b.id}: ${b.displayName} (${b.name}))
+    .map(b => `${b.id}: ${b.displayName} (${b.name})`)
     .join('\n');
     
     // Build simple palettes to guide material choices
