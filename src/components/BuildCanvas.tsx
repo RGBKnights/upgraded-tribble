@@ -266,9 +266,10 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         className="absolute"
         style={{
           left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%) rotateX(60deg) rotateY(-45deg)',
-          transform: 'translate(-50%, -50%) rotateX(30deg) rotateY(-30deg)',
+          left: '50%',
+          top: '30%',
+          transformOrigin: `${(width * 16)}px ${(height * 16)}px 0px`,
+          transform: 'translate(-50%, -50%) rotateX(70deg) rotateY(-15deg)',
           transformStyle: 'preserve-3d'
         }}
       >
