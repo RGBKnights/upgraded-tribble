@@ -939,13 +939,13 @@
     "id": 171,
     "name": "brown_mushroom",
     "displayName": "Brown Mushroom",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/mushroom_brown.png"
   },
   {
     "id": 172,
     "name": "red_mushroom",
     "displayName": "Red Mushroom",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/mushroom_red.png"
   },
   {
     "id": 173,
