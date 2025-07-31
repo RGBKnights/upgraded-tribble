@@ -215,25 +215,25 @@ export class OpenRouterService {
   }
 
   // Helper to build palettes from block names
-private buildBlockPalettes(blocks: Block[]) {
-  const has = (re: RegExp) => (b: Block) => re.test(b.name) || re.test(b.displayName);
-  const ids = (f: (b: Block) => boolean) => blocks.filter(f).map(b => b.id);
-  
-  const foundation = ids(/stone|cobble|brick|deepslate|basalt|concrete|terracotta|andesite|diorite|granite/i);
-  const walls = ids(/plank|wood|log|stone|brick|quartz|concrete|terracotta|deepslate/i);
-  const windows = ids(/glass|pane/i);
-  const roof = ids(/slab|stair|tile|brick|plank|deepslate|copper|shingle/i);
-  const lighting = ids(/torch|lantern|glow|shroom|sea.?lantern|lamp|redstone.?lamp/i);
-  const stairs = ids(/stair/i);
-  const slabs = ids(/slab/i);
-  const doors = ids(/door/i);
-  
-  // Try to find air if present
-  const airBlock = blocks.find(b => b.name === 'air' || b.displayName.toLowerCase() === 'air' || b.id === 0);
-  const air = airBlock ? airBlock.id : undefined;
-  
-  return { foundation, walls, windows, roof, lighting, stairs, slabs, doors, air };
-}
+  private buildBlockPalettes(blocks: Block[]) {
+    const has = (re: RegExp) => (b: Block) => re.test(b.name) || re.test(b.displayName);
+    const ids = (f: (b: Block) => boolean) => blocks.filter(f).map(b => b.id);
+    
+    const foundation = ids(/stone|cobble|brick|deepslate|basalt|concrete|terracotta|andesite|diorite|granite/i);
+    const walls = ids(/plank|wood|log|stone|brick|quartz|concrete|terracotta|deepslate/i);
+    const windows = ids(/glass|pane/i);
+    const roof = ids(/slab|stair|tile|brick|plank|deepslate|copper|shingle/i);
+    const lighting = ids(/torch|lantern|glow|shroom|sea.?lantern|lamp|redstone.?lamp/i);
+    const stairs = ids(/stair/i);
+    const slabs = ids(/slab/i);
+    const doors = ids(/door/i);
+    
+    // Try to find air if present
+    const airBlock = blocks.find(b => b.name === 'air' || b.displayName.toLowerCase() === 'air' || b.id === 0);
+    const air = airBlock ? airBlock.id : undefined;
+    
+    return { foundation, walls, windows, roof, lighting, stairs, slabs, doors, air };
+  }
 
 
 
