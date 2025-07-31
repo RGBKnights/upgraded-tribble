@@ -20,7 +20,7 @@ export const useBuild = () => {
   });
   
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
-  const [selectedBlockId, setSelectedBlockId] = useState<number>(1); // Stone by default (id 1 in the new data)
+  const [selectedBlockId, setSelectedBlockId] = useState<number>(1); // Stone by default (first non-air block)
   const [history, setHistory] = useState<Build[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -36,7 +36,7 @@ export const useBuild = () => {
     const newBuild = { ...build };
     const currentLayer = { ...newBuild.layers[currentLayerIndex] };
     
-    if (blockId === 1) { // Air block - remove
+    if (blockId === 0) { // Air block - remove
       delete currentLayer.blocks[key];
     } else {
       currentLayer.blocks[key] = blockId;

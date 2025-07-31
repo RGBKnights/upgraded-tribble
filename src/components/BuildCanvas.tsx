@@ -32,7 +32,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       onPlaceBlock(x, y, selectedBlockId);
     } else if (event.button === 2) { // Right click
       setDrawMode('erase'); 
-      onPlaceBlock(x, y, 0); // Air block (id 0 in the new data)
+      onPlaceBlock(x, y, 0); // Air block (id 0)
     }
   }, [selectedBlockId, onPlaceBlock]);
 
@@ -42,7 +42,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     if (drawMode === 'place') {
       onPlaceBlock(x, y, selectedBlockId);
     } else {
-      onPlaceBlock(x, y, 0); // Air block (id 0 in the new data)
+      onPlaceBlock(x, y, 0); // Air block (id 0)
     }
   }, [isDrawing, drawMode, selectedBlockId, onPlaceBlock]);
 
