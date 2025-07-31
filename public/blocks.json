@@ -870,12 +870,6 @@
     "url": "blocks/flower_allium.png"
   },
   {
-    "id": 162,
-    "name": "azure_bluet",
-    "displayName": "Azure Bluet",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 163,
     "name": "red_tulip",
     "displayName": "Red Tulip",
