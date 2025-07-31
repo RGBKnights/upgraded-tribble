@@ -136,7 +136,6 @@ You may add new layers above existing ones within Y 0..${maxY}.
     // Clear, consistent environment and contract
     return [
       'ROLE',
-      'You are a 3D voxel structure planner for a Minecraft-like builder. Your job is to design a coherent structure that fits within bounds and looks good from all sides, then output exact block placements.',
       '',
       'COORDINATE SYSTEM AND BOUNDS',
       `- Axes:
@@ -144,7 +143,6 @@ You may add new layers above existing ones within Y 0..${maxY}.
 X: width, left(0) -> right(${maxX})
 Z: depth, front(0) -> back(${maxZ})
 Y: height/layers, bottom(0) -> top(${maxY})
-Origin (0,0,0) is bottom-left-front when looking from the front.
     
 All placements MUST be within: 0<=X<=${maxX}, 0<=Y<=${maxY}, 0<=Z<=${maxZ}`,
       '',
@@ -152,7 +150,6 @@ All placements MUST be within: 0<=X<=${maxX}, 0<=Y<=${maxY}, 0<=Z<=${maxZ}`,
       blockList,
       '',
       'MATERIAL PALETTES (suggestions, still only use allowed ids above)',
-      `- foundationCandidates: ${JSON.stringify(palettes.foundation)}
     
 - wallCandidates: ${JSON.stringify(palettes.walls)}
     
@@ -177,7 +174,6 @@ All placements MUST be within: 0<=X<=${maxX}, 0<=Y<=${maxY}, 0<=Z<=${maxZ}`,
 Choose a footprint that fits in X..Z bounds (e.g., centered rectangle).
 Choose a target height (number of layers) within 0..${maxY}.
 Assign roles to layers (e.g., y=0: foundation, y=1-2: walls and openings, top: roof).
-Prefer symmetry unless the user asks otherwise.
 
 2) Build layer-by-layer:
 - y=0 (foundation): perimeter first, then floor fill. Use sturdy blocks from foundationCandidates.
@@ -203,9 +199,7 @@ Prefer symmetry unless the user asks otherwise.
       `Return ONLY a valid JSON object with:
 {
   "explanation": string,
-  "plan": {
     "footprint": string, 
-    "usedLayers": number[], 
     "materials": { 
       "foundation": number[],
       "walls": number[],
