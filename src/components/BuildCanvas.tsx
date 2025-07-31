@@ -312,7 +312,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         style={{
           left: '50%',
           top: '50%',
-          transformOrigin: `${(width * 16)}px ${(height * 16)}px 0px`,
+          transformOrigin: `${(width * 32) / 2}px ${(height * 32) / 2}px 0px`,
           transform: `translate(-50%, -50%) 
                      scale(${cameraZoom}) 
                      rotateX(${cameraRotationX}deg) 
