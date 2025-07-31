@@ -738,18 +738,6 @@
     "url": "blocks/piston_top_normal.png"
   },
   {
-    "id": 139,
-    "name": "piston_arm_collision",
-    "displayName": "Piston Head",
-    "url": "blocks/missing_texture.png"
-  },
-  {
-    "id": 8002,
-    "name": "sticky_piston_arm_collision",
-    "displayName": "Piston Head",
-    "url": "blocks/missing_texture.png"
-  },
-  {
     "id": 140,
     "name": "white_wool",
     "displayName": "White Wool",
