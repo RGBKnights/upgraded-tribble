@@ -651,7 +651,7 @@
     "id": 108,
     "name": "cut_sandstone",
     "displayName": "Cut Sandstone",
-    "url": "blocks/sandstone_carved.png"
+    "url": "blocks/missing_texture.png"
   },
   {
     "id": 109,
@@ -964,12 +964,6 @@
     "name": "brick_block",
     "displayName": "Bricks",
     "url": "blocks/brick.png"
-  },
-  {
-    "id": 176,
-    "name": "underwater_tnt",
-    "displayName": "TNT",
-    "url": "blocks/missing_texture.png"
   },
   {
     "id": 8003,
