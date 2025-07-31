@@ -78,6 +78,9 @@ export class OpenRouterService {
 
   private createSystemPrompt(blocks: Block[], dimensions: { width: number; height: number; layers: number }): string {
     const blockList = blocks.slice(0, 50).map(b => `${b.id}: ${b.displayName} (${b.name})`).join('\n');
+    const maxX = dimensions.width - 1;
+    const maxY = dimensions.layers - 1;
+    const maxZ = dimensions.height - 1;
     
     return `You are a Minecraft build designer. Generate block placement instructions for 3D builds.
 
@@ -85,14 +88,14 @@ AVAILABLE BLOCKS:
 ${blockList}
 
 BUILD SPACE:
-- Width (X): 0 to ${dimensions.width - 1}
-- Height (Z): 0 to ${dimensions.height - 1}  
-- Layers (Y): 0 to ${dimensions.layers - 1} (0 = bottom layer)
+- Width (X): 0 to ${maxX}
+- Height (Z): 0 to ${maxZ}  
+- Layers (Y): 0 to ${maxY} (0 = bottom layer)
 
 COORDINATE SYSTEM:
-- X: left to right (0 to ${dimensions.width - 1})
-- Y: layer/height (0 = bottom, ${dimensions.layers - 1} = top)
-- Z: front to back (0 to ${dimensions.height - 1})
+- X: left to right (0 to ${maxX})
+- Y: layer/height (0 = bottom, ${maxY} = top)
+- Z: front to back (0 to ${maxZ})
 
 RESPONSE FORMAT - RETURN ONLY VALID JSON:
 You must respond with ONLY a valid JSON object. Do not include:
