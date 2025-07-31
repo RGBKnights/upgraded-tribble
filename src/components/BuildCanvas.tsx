@@ -24,9 +24,20 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawMode, setDrawMode] = useState<'place' | 'erase'>('place');
+  
+  // 3D Camera controls
+  const [cameraRotationX, setCameraRotationX] = useState(60); // Isometric angle
+  const [cameraRotationY, setCameraRotationY] = useState(-45); // Side angle
+  const [cameraZoom, setCameraZoom] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((x: number, z: number, event: React.MouseEvent) => {
     event.preventDefault();
+    
+    // Don't place blocks in 3D view
+    if (viewMode === '3d') return;
+    
     setIsDrawing(true);
     
     if (event.button === 0) { // Left click
@@ -39,6 +50,9 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   }, [selectedBlockId, onPlaceBlock]);
 
   const handleMouseEnter = useCallback((x: number, z: number) => {
+    // Don't place blocks in 3D view
+    if (viewMode === '3d') return;
+    
     if (!isDrawing) return;
     
     if (drawMode === 'place') {
@@ -50,7 +64,37 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
 
   const handleMouseUp = useCallback(() => {
     setIsDrawing(false);
+    setIsDragging(false);
   }, []);
+
+  // 3D Camera control handlers
+  const handle3DMouseDown = useCallback((event: React.MouseEvent) => {
+    if (viewMode !== '3d') return;
+    event.preventDefault();
+    setIsDragging(true);
+    setLastMousePos({ x: event.clientX, y: event.clientY });
+  }, [viewMode]);
+
+  const handle3DMouseMove = useCallback((event: React.MouseEvent) => {
+    if (viewMode !== '3d' || !isDragging) return;
+    
+    const deltaX = event.clientX - lastMousePos.x;
+    const deltaY = event.clientY - lastMousePos.y;
+    
+    // Rotate camera based on mouse movement
+    setCameraRotationY(prev => prev + deltaX * 0.5);
+    setCameraRotationX(prev => Math.max(10, Math.min(80, prev - deltaY * 0.5)));
+    
+    setLastMousePos({ x: event.clientX, y: event.clientY });
+  }, [viewMode, isDragging, lastMousePos]);
+
+  const handle3DWheel = useCallback((event: React.WheelEvent) => {
+    if (viewMode !== '3d') return;
+    event.preventDefault();
+    
+    const zoomDelta = event.deltaY > 0 ? 0.9 : 1.1;
+    setCameraZoom(prev => Math.max(0.3, Math.min(3, prev * zoomDelta)));
+  }, [viewMode]);
 
   // Get all blocks in 3D space
   const getAllBlocks = () => {
