@@ -141,7 +141,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
     return (
       <div
         key={key}
-        className={`absolute cursor-crosshair transition-all duration-200 border ${
+        className={`absolute transition-all duration-200 border ${
           isCurrentLayer ? 'z-20 ring-2 ring-blue-400/50' : 'z-10'
         }`}
         style={{
@@ -156,10 +156,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
           opacity: isCurrentLayer ? 1 : 0.8,
           transformStyle: 'preserve-3d'
         }}
-        onMouseDown={(e) => handleMouseDown(blockData.x, blockData.z, e)}
-        onMouseEnter={() => handleMouseEnter(blockData.x, blockData.z)}
         onContextMenu={(e) => e.preventDefault()}
-        title={`${block.displayName} (${blockData.x}, ${blockData.y}, ${blockData.z})`}
+        title={viewMode === '2d' ? `${block.displayName} (${blockData.x}, ${blockData.y}, ${blockData.z})` : undefined}
       />
     );
   };
@@ -180,7 +178,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         elements.push(
           <div
             key={`grid-${x}-${z}`}
-            className={`absolute border border-gray-600/50 ${viewMode === '2d' ? 'hover:border-blue-400/60 hover:bg-blue-400/20 cursor-crosshair' : ''} transition-all ${
+            className={`absolute border border-gray-600/50 transition-all ${
               hasBlock ? 'bg-gray-800/20' : 'bg-transparent'
             }`}
             style={{
@@ -191,8 +189,6 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
               transform: `translateZ(${currentLayerIndex * blockSize}px)`,
               transformStyle: 'preserve-3d'
             }}
-            onMouseDown={viewMode === '2d' ? (e) => handleMouseDown(x, z, e) : undefined}
-            onMouseEnter={viewMode === '2d' ? () => handleMouseEnter(x, z) : undefined}
             onContextMenu={(e) => e.preventDefault()}
           />
         );
@@ -295,24 +291,32 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
   // 3D View Rendering  
   const render3DView = () => (
     <div 
-      className="relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none"
+      className={`relative bg-gray-900/10 rounded-lg border border-gray-700/30 overflow-hidden select-none ${
+        isDragging ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
       style={{ 
         width: '800px', 
         height: '600px',
         minWidth: '600px',
         minHeight: '400px'
       }}
+      onMouseDown={handle3DMouseDown}
+      onMouseMove={handle3DMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onWheel={handle3DWheel}
     >
-      {/* 3D Scene Container with isometric transform */}
+      {/* 3D Scene Container with camera transform */}
       <div
         className="absolute"
         style={{
           left: '50%',
-          top: '30%',
+          top: '50%',
           transformOrigin: `${(width * 16)}px ${(height * 16)}px 0px`,
-          transform: 'translate(-50%, -50%) rotateX(70deg) rotateY(-15deg)',
+          transform: `translate(-50%, -50%) 
+                     scale(${cameraZoom}) 
+                     rotateX(${cameraRotationX}deg) 
+                     rotateY(${cameraRotationY}deg)`,
           transformStyle: 'preserve-3d'
         }}
       >
@@ -330,8 +334,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       
       {/* 3D Controls hint - positioned outside 3D transform */}
       <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
-        <div>Left click: Place | Right click: Erase</div>
-        <div>3D Isometric View</div>
+        <div>Mouse: Rotate camera | Wheel: Zoom</div>
+        <div>3D Isometric View (Camera Controls)</div>
       </div>
     </div>
   );
