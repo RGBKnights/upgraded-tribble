@@ -151,7 +151,7 @@ All placements MUST be within: 0<=X<=${maxX}, 0<=Y<=${maxY}, 0<=Z<=${maxZ}`,
       '',
       'MATERIAL PALETTES (suggestions, still only use allowed ids above)',
     
-- wallCandidates: ${JSON.stringify(palettes.walls)}
+`- wallCandidates: ${JSON.stringify(palettes.walls)}
     
 - windowCandidates: ${JSON.stringify(palettes.windows)}
     
@@ -206,8 +206,7 @@ Assign roles to layers (e.g., y=0: foundation, y=1-2: walls and openings, top: r
       "windows": number[],
       "roof": number[],
       "lighting": number[]
-    }
-  },
+    },
   "layers": [ 
     { "y": number, "summary": string }
   ],
