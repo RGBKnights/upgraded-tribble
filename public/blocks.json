@@ -675,7 +675,7 @@
     "id": 127,
     "name": "detector_rail",
     "displayName": "Detector Rail",
-    "url": "blocks/missing_texture.png"
+    "url": "blocks/rail_detector.png"
   },
   {
     "id": 128,
