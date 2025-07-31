@@ -43,6 +43,7 @@ function App() {
 
   const [showBuildManager, setShowBuildManager] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
   // Keyboard navigation for layers
   useEffect(() => {
@@ -167,6 +168,8 @@ function App() {
         gridSize={{ width: build.width, height: build.height }}
         onResizeBuild={resizeBuild}
         onOpenAI={() => setShowAIChat(true)}
+        viewMode={viewMode}
+        onToggleView={() => setViewMode(viewMode === '2d' ? '3d' : '2d')}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -201,6 +204,7 @@ function App() {
               selectedBlockId={selectedBlockId}
               onPlaceBlock={placeBlock}
               getBlockById={getBlockById}
+              viewMode={viewMode}
             />
           </div>
         </div>

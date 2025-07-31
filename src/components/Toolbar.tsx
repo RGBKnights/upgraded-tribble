@@ -7,7 +7,9 @@ import {
   Download, 
   Grid,
   Maximize,
-  Sparkles
+  Sparkles,
+  Box,
+  Square
 } from 'lucide-react';
 
 interface ToolbarProps {
@@ -22,6 +24,8 @@ interface ToolbarProps {
   gridSize: { width: number; height: number };
   onResizeBuild: (width: number, height: number) => void;
   onOpenAI: () => void;
+  viewMode: '2d' | '3d';
+  onToggleView: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -35,7 +39,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onExport,
   gridSize,
   onResizeBuild,
-  onOpenAI
+  onOpenAI,
+  viewMode,
+  onToggleView
 }) => {
   const [showResizeDialog, setShowResizeDialog] = React.useState(false);
   const [newWidth, setNewWidth] = React.useState(gridSize.width);
@@ -99,6 +105,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             title="AI Build Assistant"
           >
             <Sparkles className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={onToggleView}
+            className={`p-2 hover:bg-gray-700/50 rounded-lg transition-colors ${
+              viewMode === '3d' ? 'text-blue-400' : 'text-white'
+            }`}
+            title={`Switch to ${viewMode === '2d' ? '3D' : '2D'} View`}
+          >
+            {viewMode === '2d' ? <Box className="w-4 h-4" /> : <Square className="w-4 h-4" />}
           </button>
           
           <button
