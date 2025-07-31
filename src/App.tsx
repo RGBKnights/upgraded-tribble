@@ -88,36 +88,45 @@ function App() {
   };
 
   const handleApplyAIBuild = (instructions: any[], explanation: string) => {
-    // Clear all layers first
-    const clearedBuild = {
-      ...build,
-      layers: build.layers.map(layer => ({
-        ...layer,
-        blocks: {}
-      }))
+    // Start with current build
+    const newBuild = { ...build };
+    
+    // Find the maximum Y coordinate to determine how many layers we need
+    const maxY = Math.max(0, ...instructions.map(inst => inst.y || 0));
+    
+    // Ensure we have enough layers
+    while (newBuild.layers.length <= maxY) {
+      const newLayer = {
+        id: `layer-${Date.now()}-${newBuild.layers.length}`,
+        name: `Layer ${newBuild.layers.length + 1}`,
+        blocks: {},
+        visible: true
+      };
+      newBuild.layers.push(newLayer);
     };
     
-    // Apply AI instructions
-    const newBuild = { ...clearedBuild };
+    // Clear existing blocks in affected layers
+    newBuild.layers = newBuild.layers.map(layer => ({
+      ...layer,
+      blocks: {}
+    }));
     
+    // Apply AI instructions
     instructions.forEach(instruction => {
       const { x, y, z, blockId } = instruction;
       
-      // Make sure we have enough layers
-      while (newBuild.layers.length <= y) {
-        const newLayer = {
-          id: `layer-${Date.now()}-${newBuild.layers.length}`,
-          name: `Layer ${newBuild.layers.length + 1}`,
-          blocks: {},
-          visible: true
-        };
-        newBuild.layers.push(newLayer);
-      }
-      
-      // Place the block if coordinates are valid
-      if (x >= 0 && x < build.width && z >= 0 && z < build.height && y >= 0) {
+      // Validate coordinates and place block
+      if (x >= 0 && x < build.width && 
+          z >= 0 && z < build.height && 
+          y >= 0 && y < newBuild.layers.length) {
         const key = `${x},${z}`;
-        newBuild.layers[y].blocks[key] = blockId;
+        
+        // Only place non-air blocks (air blocks mean empty/removed)
+        if (blockId !== 0) {
+          newBuild.layers[y].blocks[key] = blockId;
+        }
+        // For air blocks (blockId === 0), we simply don't add them to the blocks object
+        // which leaves the cell empty/air by default
       }
     });
     

@@ -77,7 +77,9 @@ export class OpenRouterService {
   }
 
   private createSystemPrompt(blocks: Block[], dimensions: { width: number; height: number; layers: number }): string {
-    const blockList = blocks.slice(0, 50).map(b => `${b.id}: ${b.displayName} (${b.name})`).join('\n');
+    const blockList = blocks.slice(0, 100).map(b => 
+      `${b.id}: ${b.displayName} (${b.name}) - Material: ${b.material}, Light: ${b.emitLight > 0 ? 'Yes' : 'No'}`
+    ).join('\n');
     const maxX = dimensions.width - 1;
     const maxY = dimensions.layers - 1;
     const maxZ = dimensions.height - 1;
@@ -115,12 +117,17 @@ Example valid response:
 
 GUIDELINES:
 1. Start from the bottom layer (y=0) and work up
-2. Use appropriate blocks for the structure (stone for foundations, wood for buildings, etc.)
-3. Consider structural integrity - use solid blocks for support
+2. Use appropriate blocks for the structure:
+   - Stone/Cobblestone (ids: 1, 4) for foundations and walls
+   - Wood planks (ids: 5, 126, 127, 128, 129, 130) for buildings and structures  
+   - Glass (id: 20) for windows
+   - Air (id: 0) to remove blocks or create empty spaces
+3. Consider structural integrity - use solid, heavy blocks for foundations
 4. Be creative but practical with block choices
-5. Only use block IDs from the available blocks list
+5. CRITICAL: Only use block IDs from the available blocks list above
 6. Keep coordinates within the build space bounds
 7. Consider the build from all angles - it should look good from different viewpoints
+8. For air blocks or empty spaces, use blockId: 0 and blockName: "air"
 
 Remember: This is a layer-by-layer 3D build system. Each instruction places one block at specific coordinates.`;
   }
