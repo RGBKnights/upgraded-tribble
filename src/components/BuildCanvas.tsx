@@ -306,22 +306,24 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       onMouseLeave={handleMouseUp}
       onWheel={handle3DWheel}
     >
-      {/* 3D Scene Container with camera transform */}
+      {/* 3D Scene Container with proper centering */}
       <div
-        className="absolute"
+        className="absolute inset-0 flex items-center justify-center"
+      >
+        <div
         style={{
-          left: '50%',
-          top: '50%',
-          transformOrigin: `${(width * 32) / 2}px ${(height * 32) / 2}px 0px`,
-          transform: `translate(-50%, -50%) 
-                     scale(${cameraZoom}) 
+          width: `${width * 32}px`,
+          height: `${height * 32}px`,
+          transformOrigin: `50% 50% 0px`,
+          transform: `scale(${cameraZoom}) 
                      rotateX(${cameraRotationX}deg) 
                      rotateY(${cameraRotationY}deg)`,
           transformStyle: 'preserve-3d'
         }}
-      >
-        {/* Render 3D blocks and grid */}
-        {render3DBlocks()}
+        >
+          {/* Render 3D blocks and grid */}
+          {render3DBlocks()}
+        </div>
       </div>
       
       {/* Layer indicator - positioned outside 3D transform */}
