@@ -293,16 +293,16 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
         className="absolute inset-0 flex items-center justify-center"
       >
         <div
+         style={{
+           width: `${width * 32}px`,
+           height: `${height * 32}px`,
+           transformOrigin: `${width * 16}px ${height * 16}px ${layers.length * 16}px`,
+           transform: `scale(${cameraZoom}) 
+                      rotateX(${cameraRotationX}deg) 
+                      rotateY(${cameraRotationY}deg)`,
+           transformStyle: 'preserve-3d'
+         }}
         style={{
-          width: `${width * 32}px`,
-          height: `${height * 32}px`,
-          transformOrigin: `50% 50% 0px`,
-          transform: `scale(${cameraZoom}) 
-                     rotateX(${cameraRotationX}deg) 
-                     rotateY(${cameraRotationY}deg)`,
-          transformStyle: 'preserve-3d'
-        }}
-        >
           {/* Render 3D blocks and grid */}
           {render3DBlocks()}
         </div>
