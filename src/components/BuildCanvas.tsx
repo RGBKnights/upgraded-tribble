@@ -306,7 +306,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
               height: `${height * 32}px`,
               transform: `translateX(-50%) translateY(-50%)`,
               transformStyle: 'preserve-3d',
-              position: 'relative',
+             transform: `scale(${cameraZoom}) rotateX(30deg) rotateZ(${cameraRotationY}deg)`,
               left: '50%',
               top: '50%'
             }}
