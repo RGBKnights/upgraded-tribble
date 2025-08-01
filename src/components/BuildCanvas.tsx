@@ -302,7 +302,7 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
                       rotateY(${cameraRotationY}deg)`,
            transformStyle: 'preserve-3d'
          }}
-        style={{
+        >
           {/* Render 3D blocks and grid */}
           {render3DBlocks()}
         </div>
