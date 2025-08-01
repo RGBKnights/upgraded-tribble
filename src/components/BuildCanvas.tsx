@@ -288,16 +288,24 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       onMouseLeave={handleMouseUp}
       onWheel={handle3DWheel}
     >
-      {/* 3D Scene Container with proper centering */}
+      {/* 3D Scene Container with orbit camera */}
       <div
         className="absolute inset-0 flex items-center justify-center"
+        style={{
+          perspective: '2000px'
+        }}
       >
         <div
           className="relative"
           style={{
             transformStyle: 'preserve-3d',
-            transform: `scale(${cameraZoom}) rotateX(30deg) rotateY(${cameraRotationY}deg)`,
-            transformOrigin: 'center center'
+            transform: `
+              scale(${cameraZoom}) 
+              rotateX(30deg) 
+              translateX(${Math.sin(cameraRotationY * Math.PI / 180) * 400}px)
+              translateZ(${Math.cos(cameraRotationY * Math.PI / 180) * 400}px)
+            `,
+            transformOrigin: 'center center',
           }}
         >
           <div
@@ -305,10 +313,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
               width: `${width * 32}px`,
               height: `${height * 32}px`,
               transform: `translateX(-50%) translateY(-50%)`,
-              transformStyle: 'preserve-3d',
-             transform: `scale(${cameraZoom}) rotateX(30deg) rotateZ(${cameraRotationY}deg)`,
-              left: '50%',
-              top: '50%'
+              transform: `translateX(-50%) translateY(-50%)`,
+              transformStyle: 'preserve-3d'
             }}
           >
             {/* Render 3D blocks and grid */}
@@ -320,8 +326,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
       {/* Layer indicator - positioned outside 3D transform */}
       {/* 3D Controls hint - positioned outside 3D transform */}
       <div className="absolute bottom-4 left-4 bg-gray-800/80 text-white px-3 py-2 rounded-lg text-xs z-30">
-       <div>Left Mouse: Rotate camera | Wheel: Zoom</div>
-        <div>3D Isometric View (Camera Controls)</div>
+        <div>Left Mouse: Orbit camera | Wheel: Zoom</div>
+        <div>3D Isometric View (Orbit Camera)</div>
       </div>
     </div>
   );
