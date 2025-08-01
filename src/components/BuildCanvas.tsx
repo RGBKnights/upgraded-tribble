@@ -302,8 +302,8 @@ export const BuildCanvas: React.FC<BuildCanvasProps> = ({
             transform: `
               scale(${cameraZoom}) 
               rotateX(30deg) 
-              translateX(${Math.sin(cameraRotationY * Math.PI / 180) * 400}px)
-              translateZ(${Math.cos(cameraRotationY * Math.PI / 180) * 400}px)
+              translateX(${Math.cos(cameraRotationY * Math.PI / 180) * 400}px)
+              translateY(${Math.sin(cameraRotationY * Math.PI / 180) * 400}px)
             `,
             transformOrigin: 'center center',
           }}
